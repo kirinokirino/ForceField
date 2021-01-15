@@ -10,9 +10,11 @@ use std::time::Duration;
 
 use sdl2::gfx::primitives::DrawRenderer;
 
+use simdnoise::NoiseBuilder;
+
 const SCREEN_WIDTH: u32 = 1366;
 const SCREEN_HEIGHT: u32 = 768;
-const GRID_SIZE: u32 = 32;
+const CELL_SIZE: u32 = 32;
 
 fn find_sdl_gl_driver() -> Option<u32> {
     for (index, item) in sdl2::render::drivers().enumerate() {
@@ -43,7 +45,8 @@ fn main() -> Result<(), String> {
 
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
-    draw_grid(&mut canvas, GRID_SIZE);
+    draw_grid(&mut canvas, CELL_SIZE);
+    fill_grid_with_arc(&mut canvas, &generate_flow_field(0.0, 0.0), CELL_SIZE);
     canvas.present();
 
     let mut events = sdl_context.event_pump()?;
@@ -87,4 +90,37 @@ fn draw_grid(canvas: &mut WindowCanvas, cell_size: u32) {
         let _ = canvas.hline(0, SCREEN_WIDTH as i16, (square * cell_size) as i16, color);
         let _ = canvas.vline((square * cell_size) as i16, 0, SCREEN_HEIGHT as i16, color);
     }
+}
+
+fn fill_grid_with_arc(canvas: &mut WindowCanvas, flow_field_direction: &[f32], cell_size: u32) {
+    let color = pixels::Color::RGB(255, 255, 255);
+    for y_cell in 0..SCREEN_HEIGHT / cell_size {
+        for x_cell in 0..SCREEN_WIDTH / cell_size {
+            canvas
+                .arc(
+                    (x_cell * cell_size + cell_size / 2) as i16,
+                    (y_cell * cell_size + cell_size / 2) as i16,
+                    10,
+                    0,
+                    (flow_field_direction[(y_cell * SCREEN_WIDTH / cell_size + x_cell) as usize])
+                        as i16,
+                    color,
+                )
+                .unwrap();
+        }
+    }
+}
+
+fn generate_flow_field(x_offset: f32, y_offset: f32) -> Vec<f32> {
+    let res = NoiseBuilder::gradient_2d_offset(
+        x_offset,
+        (SCREEN_WIDTH / CELL_SIZE) as usize + 1,
+        y_offset,
+        (SCREEN_HEIGHT / CELL_SIZE) as usize + 1,
+    )
+    .with_seed(0)
+    .with_freq(0.02)
+    .generate_scaled(0.0, 359.9);
+    println!("{}", res.len());
+    res
 }

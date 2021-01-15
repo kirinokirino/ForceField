@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 derive-new = "0.5.8"
 hecs = "0.3.*"
+simdnoise = "3.1.6"
 
 [dependencies.sdl2]
 version = "0.34.*"
