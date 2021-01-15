@@ -1,5 +1,5 @@
 [package]
-name = "ForceField"
+name = "force_field"
 version = "0.1.0"
 authors = ["kirinokirino <kirinokirino2501@gmail.com>"]
 edition = "2018"
@@ -7,3 +7,16 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+derive-new = "0.5.8"
+hecs = "0.3.*"
+
+[dependencies.sdl2]
+version = "0.34.*"
+default-features = false
+#features = ["ttf","image","gfx","mixer"]
+
+[dependencies.gl]
+git = "https://github.com/bjz/gl-rs"
+
+[profile.dev]
+opt-level = 1
