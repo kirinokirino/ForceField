@@ -1,4 +1,3 @@
-use crate::{SCREEN_HEIGHT, SCREEN_WIDTH};
 use sdl2::gfx::primitives::DrawRenderer;
 use sdl2::pixels;
 use sdl2::render::WindowCanvas;
@@ -16,17 +15,17 @@ pub struct Grid {
 }
 
 impl Grid {
-    pub fn new(cell_size: u32, seed: i32) -> Self {
-        let width = (SCREEN_WIDTH / cell_size) as usize;
-        let height = (SCREEN_HEIGHT / cell_size) as usize;
+    pub fn new(cell_size: u32, seed: i32, screen_width: u32, screen_height: u32) -> Self {
+        let width = (screen_width / cell_size) as usize;
+        let height = (screen_height / cell_size) as usize;
         let seed = seed;
         Self {
             cell_size,
             width,
             height,
 
-            angles: Grid::flow_field_angles(width, height, 0., 0.),
-            lengths: Grid::flow_field_lengths(width, height, 0., 0.),
+            angles: Grid::flow_field_angles(seed, width, height, 0., 0.),
+            lengths: Grid::flow_field_lengths(seed, width, height, 0., 0.),
 
             seed,
         }
@@ -40,34 +39,33 @@ impl Grid {
 
     fn draw_grid(&self, canvas: &mut WindowCanvas) {
         let color = pixels::Color::RGBA(255, 255, 255, 15);
-        for square in 0..std::cmp::max(SCREEN_HEIGHT, SCREEN_WIDTH) / self.cell_size {
+        for square in 0..std::cmp::max(self.height, self.width) {
             let _ = canvas.hline(
                 0,
-                SCREEN_WIDTH as i16,
-                (square * self.cell_size) as i16,
+                (self.width * self.cell_size as usize) as i16,
+                (square * self.cell_size as usize) as i16,
                 color,
             );
             let _ = canvas.vline(
-                (square * self.cell_size) as i16,
+                (square * self.cell_size as usize) as i16,
                 0,
-                SCREEN_HEIGHT as i16,
+                (self.height * self.cell_size as usize) as i16,
                 color,
             );
         }
     }
 
-    fn fill_grid_with_arc(&self, canvas: &mut WindowCanvas) {
+    fn _fill_grid_with_arc(&self, canvas: &mut WindowCanvas) {
         let color = pixels::Color::RGB(255, 255, 255);
-        for y_cell in 0..SCREEN_HEIGHT / self.cell_size {
-            for x_cell in 0..SCREEN_WIDTH / self.cell_size {
+        for y_cell in 0..self.height {
+            for x_cell in 0..self.width {
                 canvas
                     .arc(
-                        (x_cell * self.cell_size + self.cell_size / 2) as i16,
-                        (y_cell * self.cell_size + self.cell_size / 2) as i16,
+                        (x_cell as u32 * self.cell_size + self.cell_size / 2) as i16,
+                        (y_cell as u32 * self.cell_size + self.cell_size / 2) as i16,
                         10,
                         0,
-                        (self.angles[(y_cell * SCREEN_WIDTH / self.cell_size + x_cell) as usize])
-                            as i16,
+                        (self.angles[(y_cell * self.width + x_cell) as usize]) as i16,
                         color,
                     )
                     .unwrap();
@@ -76,13 +74,12 @@ impl Grid {
     }
     fn fill_grid_with_vec(&self, canvas: &mut WindowCanvas) {
         let color = pixels::Color::RGBA(255, 255, 255, 100);
-        for y_cell in 0..SCREEN_HEIGHT / self.cell_size {
-            for x_cell in 0..SCREEN_WIDTH / self.cell_size {
-                let center_x = (x_cell * self.cell_size + self.cell_size / 2) as i16;
-                let center_y = (y_cell * self.cell_size + self.cell_size / 2) as i16;
-                let angle = self.angles[(y_cell * SCREEN_WIDTH / self.cell_size + x_cell) as usize];
-                let length =
-                    self.lengths[(y_cell * SCREEN_WIDTH / self.cell_size + x_cell) as usize];
+        for y_cell in 0..self.height {
+            for x_cell in 0..self.width {
+                let center_x = (x_cell as u32 * self.cell_size + self.cell_size / 2) as i16;
+                let center_y = (y_cell as u32 * self.cell_size + self.cell_size / 2) as i16;
+                let angle = self.angles[(y_cell * self.width + x_cell) as usize];
+                let length = self.lengths[(y_cell * self.width + x_cell) as usize];
 
                 canvas
                     .aa_line(
@@ -99,15 +96,27 @@ impl Grid {
 
     fn tick(&mut self) {}
 
-    fn flow_field_angles(width: usize, height: usize, x_offset: f32, y_offset: f32) -> Vec<f32> {
+    fn flow_field_angles(
+        seed: i32,
+        width: usize,
+        height: usize,
+        x_offset: f32,
+        y_offset: f32,
+    ) -> Vec<f32> {
         NoiseBuilder::gradient_2d_offset(x_offset, width + 1, y_offset, height)
-            .with_seed(0)
+            .with_seed(seed)
             .with_freq(0.02)
             .generate_scaled(0.0, 359.9)
     }
-    fn flow_field_lengths(width: usize, height: usize, x_offset: f32, y_offset: f32) -> Vec<f32> {
+    fn flow_field_lengths(
+        seed: i32,
+        width: usize,
+        height: usize,
+        x_offset: f32,
+        y_offset: f32,
+    ) -> Vec<f32> {
         NoiseBuilder::gradient_2d_offset(x_offset, width + 1, y_offset, height)
-            .with_seed(0)
+            .with_seed(seed)
             .with_freq(0.02)
             .generate_scaled(-10.0, 10.0)
     }

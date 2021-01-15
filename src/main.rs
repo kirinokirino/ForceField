@@ -42,7 +42,7 @@ fn main() -> Result<(), String> {
 
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
-    let mut grid = Grid::new(32, 0);
+    let grid = Grid::new(32, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     grid.draw(&mut canvas);
     canvas.present();
 
@@ -61,7 +61,7 @@ fn main() -> Result<(), String> {
                     }
                 }
 
-                Event::MouseButtonDown { x, y, .. } => {
+                Event::MouseButtonDown { x: _, y: _, .. } => {
                     continue;
                 }
 
