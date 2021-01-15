@@ -34,11 +34,12 @@ impl Grid {
 
     pub fn draw(&self, canvas: &mut WindowCanvas) {
         self.draw_grid(canvas);
-        self.fill_grid_with_arc(canvas);
+        //self.fill_grid_with_arc(canvas);
+        self.fill_grid_with_vec(canvas);
     }
 
     fn draw_grid(&self, canvas: &mut WindowCanvas) {
-        let color = pixels::Color::RGB(255, 255, 255);
+        let color = pixels::Color::RGBA(255, 255, 255, 15);
         for square in 0..std::cmp::max(SCREEN_HEIGHT, SCREEN_WIDTH) / self.cell_size {
             let _ = canvas.hline(
                 0,
@@ -73,6 +74,28 @@ impl Grid {
             }
         }
     }
+    fn fill_grid_with_vec(&self, canvas: &mut WindowCanvas) {
+        let color = pixels::Color::RGBA(255, 255, 255, 100);
+        for y_cell in 0..SCREEN_HEIGHT / self.cell_size {
+            for x_cell in 0..SCREEN_WIDTH / self.cell_size {
+                let center_x = (x_cell * self.cell_size + self.cell_size / 2) as i16;
+                let center_y = (y_cell * self.cell_size + self.cell_size / 2) as i16;
+                let angle = self.angles[(y_cell * SCREEN_WIDTH / self.cell_size + x_cell) as usize];
+                let length =
+                    self.lengths[(y_cell * SCREEN_WIDTH / self.cell_size + x_cell) as usize];
+
+                canvas
+                    .aa_line(
+                        center_x,
+                        center_y,
+                        center_x + (angle.to_radians().cos() * length) as i16,
+                        center_y + (angle.to_radians().sin() * length) as i16,
+                        color,
+                    )
+                    .unwrap();
+            }
+        }
+    }
 
     fn tick(&mut self) {}
 
@@ -86,6 +109,6 @@ impl Grid {
         NoiseBuilder::gradient_2d_offset(x_offset, width + 1, y_offset, height)
             .with_seed(0)
             .with_freq(0.02)
-            .generate_scaled(-2.0, 2.0)
+            .generate_scaled(-10.0, 10.0)
     }
 }
