@@ -43,7 +43,7 @@ fn main() -> Result<(), String> {
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
     let mut seed = 0i32;
-    let mut grid = Grid::new(32, seed, SCREEN_WIDTH, SCREEN_HEIGHT);
+    let mut grid = Grid::new(16, seed, SCREEN_WIDTH, SCREEN_HEIGHT);
     grid.draw(&mut canvas);
     canvas.present();
 

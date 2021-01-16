@@ -86,7 +86,7 @@ impl Grid {
                     .arc(
                         (x_cell as u32 * self.cell_size + self.cell_size / 2) as i16,
                         (y_cell as u32 * self.cell_size + self.cell_size / 2) as i16,
-                        10,
+                        (self.cell_size / 2) as i16,
                         0,
                         (self.angles[(y_cell * self.width + x_cell) as usize]) as i16,
                         color,
@@ -104,18 +104,39 @@ impl Grid {
                 let angle = self.angles[(y_cell * self.width + x_cell) as usize];
                 let length = self.lengths[(y_cell * self.width + x_cell) as usize];
 
-                canvas
-                    .aa_line(
-                        center_x,
-                        center_y,
-                        center_x + ((angle.to_radians() * 2.).cos() * length) as i16,
-                        center_y + ((angle.to_radians() * 2.).sin() * length) as i16,
-                        color,
-                    )
-                    .unwrap();
+                if self.cell_size > 32 {
+                    canvas
+                        .thick_line(
+                            center_x,
+                            center_y,
+                            center_x
+                                + ((angle.to_radians() * 2.).cos() * length * self.cell_size as f32
+                                    / 2.) as i16,
+                            center_y
+                                + ((angle.to_radians() * 2.).sin() * length * self.cell_size as f32
+                                    / 2.) as i16,
+                            2,
+                            color,
+                        )
+                        .unwrap();
+                } else {
+                    canvas
+                        .aa_line(
+                            center_x,
+                            center_y,
+                            center_x
+                                + ((angle.to_radians() * 2.).cos() * length * self.cell_size as f32
+                                    / 2.) as i16,
+                            center_y
+                                + ((angle.to_radians() * 2.).sin() * length * self.cell_size as f32
+                                    / 2.) as i16,
+                            color,
+                        )
+                        .unwrap();
+                }
             }
         }
-    }current_tick
+    }
 
     pub fn tick(&mut self, current_tick: f32) {
         self.angles =
@@ -146,6 +167,6 @@ impl Grid {
         NoiseBuilder::gradient_2d_offset(x_offset, width, y_offset, height + 1)
             .with_seed(seed - 1000)
             .with_freq(0.02)
-            .generate_scaled(-10.0, 10.0)
+            .generate_scaled(-1.0, 1.0)
     }
 }
