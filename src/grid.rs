@@ -5,6 +5,10 @@ use simdnoise::NoiseBuilder;
 
 pub struct Grid {
     cell_size: u32,
+
+    screen_width: u32,
+    screen_height: u32,
+
     width: usize,
     height: usize,
 
@@ -16,11 +20,13 @@ pub struct Grid {
 
 impl Grid {
     pub fn new(cell_size: u32, seed: i32, screen_width: u32, screen_height: u32) -> Self {
-        let width = (screen_width / cell_size) as usize;
-        let height = (screen_height / cell_size) as usize;
+        let width = ((screen_width / cell_size) + 1) as usize;
+        let height = ((screen_height / cell_size) + 1) as usize;
         let seed = seed;
         Self {
             cell_size,
+            screen_width,
+            screen_height,
             width,
             height,
 
@@ -40,6 +46,8 @@ impl Grid {
     ) {
         if let Some(new_cell_size) = cell_size {
             self.cell_size = new_cell_size;
+            self.width = ((self.screen_width / self.cell_size) + 1) as usize;
+            self.height = ((self.screen_height / self.cell_size) + 1) as usize;
         }
         if let Some(new_seed) = seed {
             self.seed = new_seed;

@@ -43,7 +43,8 @@ fn main() -> Result<(), String> {
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
     let mut seed = 0i32;
-    let mut grid = Grid::new(16, seed, SCREEN_WIDTH, SCREEN_HEIGHT);
+    let mut cell_size = 32;
+    let mut grid = Grid::new(cell_size, seed, SCREEN_WIDTH, SCREEN_HEIGHT);
     grid.draw(&mut canvas);
     canvas.present();
 
@@ -68,6 +69,13 @@ fn main() -> Result<(), String> {
                     } else if keycode == Keycode::Space {
                         seed += 1;
                         global_time = 0.0;
+                    } else if keycode == Keycode::Quote {
+                        cell_size += 1;
+                    } else if keycode == Keycode::Comma {
+                        let _some_other_stuff = ();
+                        if cell_size >= 5 {
+                            cell_size -= 1;
+                        }
                     }
                 }
 
@@ -80,7 +88,7 @@ fn main() -> Result<(), String> {
         }
 
         // UPDATE ----
-        grid.update(None, Some(seed), None, None);
+        grid.update(Some(cell_size), Some(seed), None, None);
         global_time += 0.2;
         grid.tick(global_time);
 
