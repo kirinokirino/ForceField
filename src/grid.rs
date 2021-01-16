@@ -12,6 +12,12 @@ pub struct Grid {
     width: usize,
     height: usize,
 
+    angles_offset: (f32, f32),
+    lengths_offset: (f32, f32),
+
+    angles_offset_change: (f32, f32),
+    lengths_offset_change: (f32, f32),
+
     angles: Vec<f32>,
     lengths: Vec<f32>,
 
@@ -29,6 +35,11 @@ impl Grid {
             screen_height,
             width,
             height,
+            angles_offset: (0., 0.),
+            lengths_offset: (0., 0.),
+
+            angles_offset_change: (0., 0.),
+            lengths_offset_change: (0., 0.),
 
             angles: Grid::flow_field_angles(seed, width, height, 0., 0.),
             lengths: Grid::flow_field_lengths(seed, width, height, 0., 0.),
@@ -147,10 +158,29 @@ impl Grid {
     }
 
     pub fn tick(&mut self, current_tick: f32) {
-        self.angles =
-            Grid::flow_field_angles(self.seed, self.width, self.height, current_tick, 0.0);
-        self.lengths =
-            Grid::flow_field_lengths(self.seed, self.width, self.height, 0.0, current_tick);
+        self.angles_offset.0 += self.angles_offset_change.0;
+        self.angles_offset.1 += self.angles_offset_change.1;
+        self.lengths_offset.0 += self.lengths_offset_change.0;
+        self.lengths_offset.1 += self.lengths_offset_change.1;
+        self.angles = Grid::flow_field_angles(
+            self.seed,
+            self.width,
+            self.height,
+            self.angles_offset.0,
+            self.angles_offset.1,
+        );
+        self.lengths = Grid::flow_field_lengths(
+            self.seed,
+            self.width,
+            self.height,
+            self.lengths_offset.0,
+            self.lengths_offset.1,
+        );
+    }
+
+    pub fn set_offset_changes(&mut self, angles: (f32, f32), lengths: (f32, f32)) {
+        self.angles_offset_change = angles;
+        self.lengths_offset_change = lengths;
     }
 
     fn flow_field_angles(

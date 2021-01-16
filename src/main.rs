@@ -48,6 +48,7 @@ fn main() -> Result<(), String> {
     grid.draw(&mut canvas);
     canvas.present();
 
+    let mut changes = (0., 0.);
     let mut global_time = 0.0;
     let mut events = sdl_context.event_pump()?;
     'main: loop {
@@ -66,16 +67,34 @@ fn main() -> Result<(), String> {
                 } => {
                     if keycode == Keycode::Escape {
                         break 'main;
-                    } else if keycode == Keycode::Space {
+                    }
+                    if keycode == Keycode::Space {
                         seed += 1;
                         global_time = 0.0;
-                    } else if keycode == Keycode::Quote {
+                        changes = (0., 0.);
+                    }
+                    if keycode == Keycode::Quote {
                         cell_size += 1;
-                    } else if keycode == Keycode::Comma {
+                    } else if keycode == Keycode::Period {
                         let _some_other_stuff = ();
                         if cell_size >= 5 {
                             cell_size -= 1;
                         }
+                    }
+                    if keycode == Keycode::Comma {
+                        changes.1 += -0.5;
+                        changes.0 = 0.;
+                    } else if keycode == Keycode::O {
+                        changes.1 += 0.5;
+                        changes.0 = 0.;
+                    }
+
+                    if keycode == Keycode::A {
+                        changes.0 += -0.5;
+                        changes.1 = 0.;
+                    } else if keycode == Keycode::E {
+                        changes.0 += 0.5;
+                        changes.1 = 0.;
                     }
                 }
 
@@ -89,6 +108,7 @@ fn main() -> Result<(), String> {
 
         // UPDATE ----
         grid.update(Some(cell_size), Some(seed), None, None);
+        grid.set_offset_changes(changes, changes);
         global_time += 0.2;
         grid.tick(global_time);
 
