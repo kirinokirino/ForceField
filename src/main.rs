@@ -42,12 +42,19 @@ fn main() -> Result<(), String> {
 
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
-    let grid = Grid::new(32, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+    let mut seed = 0i32;
+    let mut grid = Grid::new(32, seed, SCREEN_WIDTH, SCREEN_HEIGHT);
     grid.draw(&mut canvas);
     canvas.present();
 
+    let mut global_time = 0.0;
     let mut events = sdl_context.event_pump()?;
     'main: loop {
+        // Clear the screen
+        canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
+        canvas.clear();
+
+        // INPUT ----
         for event in events.poll_iter() {
             match event {
                 Event::Quit { .. } => break 'main,
@@ -58,6 +65,9 @@ fn main() -> Result<(), String> {
                 } => {
                     if keycode == Keycode::Escape {
                         break 'main;
+                    } else if keycode == Keycode::Space {
+                        seed += 1;
+                        global_time = 0.0;
                     }
                 }
 
@@ -68,6 +78,17 @@ fn main() -> Result<(), String> {
                 _ => {}
             }
         }
+
+        // UPDATE ----
+        grid.update(None, Some(seed), None, None);
+        global_time += 0.2;
+        grid.tick(global_time);
+
+        // DRAW ----
+        grid.draw(&mut canvas);
+
+        canvas.present();
+        // Framerate limiter.
         ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
     }
 
