@@ -108,30 +108,20 @@ impl Grid {
                     .aa_line(
                         center_x,
                         center_y,
-                        center_x + (angle.to_radians().cos() * length) as i16,
-                        center_y + (angle.to_radians().sin() * length) as i16,
+                        center_x + ((angle.to_radians() * 2.).cos() * length) as i16,
+                        center_y + ((angle.to_radians() * 2.).sin() * length) as i16,
                         color,
                     )
                     .unwrap();
             }
         }
-    }
+    }current_tick
 
     pub fn tick(&mut self, current_tick: f32) {
-        self.angles = Grid::flow_field_angles(
-            self.seed,
-            self.width,
-            self.height,
-            current_tick,
-            current_tick,
-        );
-        self.lengths = Grid::flow_field_lengths(
-            self.seed,
-            self.width,
-            self.height,
-            current_tick,
-            current_tick,
-        );
+        self.angles =
+            Grid::flow_field_angles(self.seed, self.width, self.height, current_tick, 0.0);
+        self.lengths =
+            Grid::flow_field_lengths(self.seed, self.width, self.height, 0.0, current_tick);
     }
 
     fn flow_field_angles(
@@ -141,7 +131,7 @@ impl Grid {
         x_offset: f32,
         y_offset: f32,
     ) -> Vec<f32> {
-        NoiseBuilder::gradient_2d_offset(x_offset, width + 1, y_offset, height)
+        NoiseBuilder::gradient_2d_offset(x_offset, width, y_offset, height + 1)
             .with_seed(seed)
             .with_freq(0.02)
             .generate_scaled(0.0, 359.9)
@@ -153,8 +143,8 @@ impl Grid {
         x_offset: f32,
         y_offset: f32,
     ) -> Vec<f32> {
-        NoiseBuilder::gradient_2d_offset(x_offset, width + 1, y_offset, height)
-            .with_seed(seed)
+        NoiseBuilder::gradient_2d_offset(x_offset, width, y_offset, height + 1)
+            .with_seed(seed - 1000)
             .with_freq(0.02)
             .generate_scaled(-10.0, 10.0)
     }
