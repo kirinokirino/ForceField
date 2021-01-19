@@ -1,4 +1,5 @@
-#![warn(clippy::all)]
+#![deny(clippy::all)]
+#![warn(clippy::nursery, clippy::pedantic, clippy::cargo)]
 
 extern crate sdl2;
 
@@ -10,9 +11,10 @@ use sdl2::keyboard::Keycode;
 use sdl2::pixels;
 use std::time::Duration;
 
-const SCREEN_WIDTH: u32 = 1366;
-const SCREEN_HEIGHT: u32 = 768;
+const SCREEN_WIDTH: u16 = 1366;
+const SCREEN_HEIGHT: u16 = 768;
 
+#[allow(clippy::cast_possible_truncation)]
 fn find_sdl_gl_driver() -> Option<u32> {
     for (index, item) in sdl2::render::drivers().enumerate() {
         if item.name == "opengl" {
@@ -26,7 +28,7 @@ fn main() -> Result<(), String> {
     let sdl_context = sdl2::init().unwrap();
     let video_subsystem = sdl_context.video().unwrap();
     let window = video_subsystem
-        .window("ForceField", SCREEN_WIDTH, SCREEN_HEIGHT)
+        .window("ForceField", SCREEN_WIDTH.into(), SCREEN_HEIGHT.into())
         .opengl() // this line DOES NOT enable opengl, but allows you to create/get an OpenGL context from your window.
         .fullscreen()
         .build()
@@ -42,8 +44,8 @@ fn main() -> Result<(), String> {
 
     canvas.set_draw_color(pixels::Color::RGB(0, 0, 0));
     canvas.clear();
-    let mut seed = 0i32;
-    let mut cell_size = 32;
+    let mut seed: i32 = 0;
+    let mut cell_size: u16 = 32;
     let mut grid = Grid::new(cell_size, seed, SCREEN_WIDTH, SCREEN_HEIGHT);
     grid.draw(&mut canvas);
     canvas.present();
@@ -57,6 +59,7 @@ fn main() -> Result<(), String> {
         canvas.clear();
 
         // INPUT ----
+        #[allow(clippy::collapsible_if)]
         for event in events.poll_iter() {
             match event {
                 Event::Quit { .. } => break 'main,
@@ -76,7 +79,6 @@ fn main() -> Result<(), String> {
                     if keycode == Keycode::Quote {
                         cell_size += 1;
                     } else if keycode == Keycode::Period {
-                        let _some_other_stuff = ();
                         if cell_size >= 5 {
                             cell_size -= 1;
                         }
@@ -117,7 +119,7 @@ fn main() -> Result<(), String> {
 
         canvas.present();
         // Framerate limiter.
-        ::std::thread::sleep(Duration::new(0, 1_000_000_000u32 / 30));
+        ::std::thread::sleep(Duration::new(0, 1_000_000_000_u32 / 30));
     }
 
     Ok(())
