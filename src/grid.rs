@@ -133,15 +133,9 @@ impl Grid {
                             center_x,
                             center_y,
                             center_x
-                                + ((angle.to_radians() * 2.).cos()
-                                    * length
-                                    * f32::from(self.cell_size)
-                                    / 2.) as i16,
+                                + ((angle).cos() * length * f32::from(self.cell_size) / 2.) as i16,
                             center_y
-                                + ((angle.to_radians() * 2.).sin()
-                                    * length
-                                    * f32::from(self.cell_size)
-                                    / 2.) as i16,
+                                + ((angle).sin() * length * f32::from(self.cell_size) / 2.) as i16,
                             2,
                             color,
                         )
@@ -152,15 +146,9 @@ impl Grid {
                             center_x,
                             center_y,
                             center_x
-                                + ((angle.to_radians() * 2.).cos()
-                                    * length
-                                    * f32::from(self.cell_size)
-                                    / 2.) as i16,
+                                + ((angle).cos() * length * f32::from(self.cell_size) / 2.) as i16,
                             center_y
-                                + ((angle.to_radians() * 2.).sin()
-                                    * length
-                                    * f32::from(self.cell_size)
-                                    / 2.) as i16,
+                                + ((angle).sin() * length * f32::from(self.cell_size) / 2.) as i16,
                             color,
                         )
                         .unwrap();
@@ -190,6 +178,16 @@ impl Grid {
         );
     }
 
+    #[allow(clippy::pedantic)]
+    pub fn get_vec_on_position(&self, x: f32, y: f32) -> (f32, f32) {
+        let x_cell = x as u16 / self.cell_size;
+        let y_cell = y as u16 / self.cell_size;
+        (
+            self.angles[(y_cell * self.width + x_cell) as usize],
+            self.lengths[(y_cell * self.width + x_cell) as usize],
+        )
+    }
+
     pub fn set_offset_changes(&mut self, angles: (f32, f32), lengths: (f32, f32)) {
         self.angles_offset_change = angles;
         self.lengths_offset_change = lengths;
@@ -205,7 +203,7 @@ impl Grid {
         NoiseBuilder::gradient_2d_offset(x_offset, width.into(), y_offset, (height + 1).into())
             .with_seed(seed)
             .with_freq(0.02)
-            .generate_scaled(0.0, 359.9)
+            .generate_scaled(0.0, std::f32::consts::TAU * 2.)
     }
     fn flow_field_lengths(
         seed: i32,
@@ -217,6 +215,6 @@ impl Grid {
         NoiseBuilder::gradient_2d_offset(x_offset, width.into(), y_offset, (height + 1).into())
             .with_seed(seed - 1000)
             .with_freq(0.02)
-            .generate_scaled(-1.0, 1.0)
+            .generate_scaled(0.0, 1.0)
     }
 }

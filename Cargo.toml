@@ -13,8 +13,6 @@ keywords = ["simulation"]
 categories = ["simulation"]
 
 [dependencies]
-derive-new = "0.5.8"
-hecs = "0.3.*"
 simdnoise = "3.1.6"
 
 [dependencies.sdl2]
@@ -26,5 +24,14 @@ features = ["gfx"]
 [dependencies.gl]
 git = "https://github.com/bjz/gl-rs"
 
+[dev-dependencies]
+criterion = "0.3"
+
+
 [profile.dev]
 opt-level = 1
+
+[profile.release]
+lto = "fat"
+codegen-units = 1
+panic = "abort"
